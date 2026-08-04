@@ -1,0 +1,43 @@
+{
+  "name": "calendar-gadget",
+  "version": "1.0.0",
+  "description": "Windows 11 desktop calendar gadget",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --win nsis",
+    "pack:portable": "electron-builder --win portable"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.calendar.gadget",
+    "productName": "Calendar Gadget",
+    "directories": {
+      "output": "dist-install"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Calendar Gadget"
+    }
+  },
+  "allowScripts": {
+    "electron@37.10.3": true
+  }
+}
