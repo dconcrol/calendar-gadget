@@ -103,6 +103,10 @@ function createWindow() {
     },
   });
 
+  // Frameless windows on Windows often ignore constructor max/min during drag-resize.
+  mainWindow.setMinimumSize(MIN_WIDTH, MIN_HEIGHT);
+  mainWindow.setMaximumSize(MAX_WIDTH, MAX_HEIGHT);
+
   mainWindow.once('ready-to-show', () => {
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.show();
   });
@@ -121,7 +125,29 @@ function createWindow() {
     boundsTimer = setTimeout(persistBounds, 250);
   };
 
-  mainWindow.on('resized', schedulePersistBounds);
+  mainWindow.on('will-resize', (event, newBounds) => {
+    const nextW = clamp(newBounds.width, MIN_WIDTH, MAX_WIDTH);
+    const nextH = clamp(newBounds.height, MIN_HEIGHT, MAX_HEIGHT);
+    if (nextW === newBounds.width && nextH === newBounds.height) return;
+    event.preventDefault();
+    mainWindow.setBounds({
+      x: newBounds.x,
+      y: newBounds.y,
+      width: nextW,
+      height: nextH,
+    });
+  });
+
+  mainWindow.on('resized', () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    const [w, h] = mainWindow.getSize();
+    const nextW = clamp(w, MIN_WIDTH, MAX_WIDTH);
+    const nextH = clamp(h, MIN_HEIGHT, MAX_HEIGHT);
+    if (nextW !== w || nextH !== h) {
+      mainWindow.setSize(nextW, nextH);
+    }
+    schedulePersistBounds();
+  });
   mainWindow.on('moved', schedulePersistBounds);
   mainWindow.on('closed', () => {
     mainWindow = null;

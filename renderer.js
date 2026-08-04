@@ -9,6 +9,7 @@ const els = {
   monthLabel: document.getElementById('month-label'),
   weekdayRow: document.getElementById('weekday-row'),
   dayGrid: document.getElementById('day-grid'),
+  calendarBlock: document.querySelector('.calendar-block'),
   prevMonth: document.getElementById('prev-month'),
   nextMonth: document.getElementById('next-month'),
   btnToday: document.getElementById('btn-today'),
@@ -22,7 +23,6 @@ const els = {
   scheduleList: document.getElementById('schedule-list'),
   scheduleForm: document.getElementById('schedule-form'),
   scheduleTitle: document.getElementById('schedule-title'),
-  scheduleTime: document.getElementById('schedule-time'),
   scheduleNotes: document.getElementById('schedule-notes'),
   scheduleError: document.getElementById('schedule-error'),
   btnScheduleClose: document.getElementById('btn-schedule-close'),
@@ -177,6 +177,12 @@ async function renderCalendar() {
     cells.push(`<button class="day muted" type="button" tabindex="-1" disabled>${day}</button>`);
   }
 
+  // Always fill 6 weeks so the grid scales evenly with the window.
+  while (cells.length < 42) {
+    const day = cells.length - (startOffset + daysInMonth) + 1;
+    cells.push(`<button class="day muted" type="button" tabindex="-1" disabled>${day}</button>`);
+  }
+
   els.dayGrid.innerHTML = cells.join('');
 }
 
@@ -270,25 +276,21 @@ async function renderScheduleList() {
   if (!selectedDate) return;
   const items = await window.calendarApi.listSchedulesByDate(selectedDate);
   if (!items.length) {
-    els.scheduleList.innerHTML = '<li class="schedule-empty">No schedules yet. Add one below.</li>';
+    els.scheduleList.innerHTML = '<li class="schedule-empty">No meetings yet. Add one below.</li>';
     return;
   }
 
   els.scheduleList.innerHTML = items
     .map((item) => {
-      const time = item.time
-        ? `<span class="time-badge">${escapeHtml(item.time)}</span>`
-        : '';
-      const notes = item.notes
+      const description = item.notes
         ? `<div class="meta">${escapeHtml(item.notes)}</div>`
         : '';
       return `<li class="schedule-item" data-id="${escapeHtml(item.id)}">
         <div class="schedule-top">
           <strong>${escapeHtml(item.title)}</strong>
-          <button class="ghost-btn" type="button" data-delete="${escapeHtml(item.id)}" title="Delete" aria-label="Delete schedule">×</button>
+          <button class="ghost-btn" type="button" data-delete="${escapeHtml(item.id)}" title="Delete" aria-label="Delete meeting">×</button>
         </div>
-        ${time}
-        ${notes}
+        ${description}
       </li>`;
     })
     .join('');
@@ -337,6 +339,24 @@ function bindEvents() {
   els.nextMonth.addEventListener('click', () => shiftMonth(1));
   els.btnToday.addEventListener('click', goToday);
 
+  // Mouse wheel changes months like Windows Calendar (up = previous, down = next).
+  let wheelLock = false;
+  els.calendarBlock.addEventListener(
+    'wheel',
+    (e) => {
+      if (!els.schedulePanel.hidden || !els.settingsPanel.hidden) return;
+      if (Math.abs(e.deltaY) < 1) return;
+      e.preventDefault();
+      if (wheelLock) return;
+      wheelLock = true;
+      shiftMonth(e.deltaY > 0 ? 1 : -1);
+      setTimeout(() => {
+        wheelLock = false;
+      }, 140);
+    },
+    { passive: false }
+  );
+
   els.dayGrid.addEventListener('click', (e) => {
     const btn = e.target.closest('button.day[data-date]');
     if (!btn) return;
@@ -367,12 +387,10 @@ function bindEvents() {
     e.preventDefault();
     if (!selectedDate) return;
     const title = els.scheduleTitle.value.trim();
-    const time = els.scheduleTime.value;
     const notes = els.scheduleNotes.value.trim();
     const result = await window.calendarApi.createSchedule({
       date: selectedDate,
       title,
-      time,
       notes,
     });
     if (!result.ok) {

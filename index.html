@@ -63,10 +63,10 @@
       <aside id="schedule-panel" class="overlay-panel" hidden>
         <div class="overlay-header">
           <div>
-            <p class="overlay-kicker">Schedule</p>
+            <p class="overlay-kicker">Meeting</p>
             <h2 id="schedule-date-label">Date</h2>
           </div>
-          <button id="btn-schedule-close" class="icon-btn" type="button" aria-label="Close schedule">
+          <button id="btn-schedule-close" class="icon-btn" type="button" aria-label="Close meeting panel">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
@@ -78,18 +78,14 @@
         <form id="schedule-form" class="schedule-form">
           <label class="field">
             <span>Title</span>
-            <input id="schedule-title" type="text" maxlength="120" required placeholder="Meeting, reminder…" />
+            <input id="schedule-title" type="text" maxlength="120" required placeholder="Meeting title" />
           </label>
           <label class="field">
-            <span>Time <em>(optional)</em></span>
-            <input id="schedule-time" type="time" />
-          </label>
-          <label class="field">
-            <span>Notes <em>(optional)</em></span>
-            <textarea id="schedule-notes" rows="3" maxlength="500" placeholder="Details…"></textarea>
+            <span>Description</span>
+            <textarea id="schedule-notes" rows="4" maxlength="500" placeholder="Meeting description"></textarea>
           </label>
           <p id="schedule-error" class="form-error" hidden></p>
-          <button class="primary-btn" type="submit">Add schedule</button>
+          <button class="primary-btn" type="submit">Add meeting</button>
         </form>
       </aside>
 

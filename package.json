@@ -1,6 +1,6 @@
 {
   "name": "calendar-gadget",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Windows 11 desktop calendar gadget",
   "main": "main.js",
   "scripts": {
@@ -20,6 +20,17 @@
     "directories": {
       "output": "dist-install"
     },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "db.js",
+      "index.html",
+      "styles.css",
+      "package.json"
+    ],
+    "compression": "maximum",
+    "electronLanguages": ["en-US"],
     "win": {
       "target": [
         {

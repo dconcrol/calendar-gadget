@@ -32,7 +32,7 @@ function createDatabase(dbPath) {
     listByDate(date) {
       return read()
         .schedules.filter((s) => s.date === date)
-        .sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')) || a.createdAt.localeCompare(b.createdAt));
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     },
 
     listDatesInMonth(year, month) {
@@ -45,14 +45,13 @@ function createDatabase(dbPath) {
       return [...dates];
     },
 
-    create({ date, title, notes = '', time = '' }) {
+    create({ date, title, notes = '' }) {
       const data = read();
       const item = {
         id: crypto.randomUUID(),
         date,
         title: String(title || '').trim(),
         notes: String(notes || '').trim(),
-        time: String(time || '').trim(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -72,7 +71,6 @@ function createDatabase(dbPath) {
         ...current,
         title: patch.title != null ? String(patch.title).trim() : current.title,
         notes: patch.notes != null ? String(patch.notes).trim() : current.notes,
-        time: patch.time != null ? String(patch.time).trim() : current.time,
         updatedAt: new Date().toISOString(),
       };
       if (!next.title) throw new Error('Title is required');

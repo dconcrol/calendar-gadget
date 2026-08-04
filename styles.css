@@ -145,21 +145,22 @@ body {
 .content {
   flex: 1;
   min-height: 0;
-  padding: 18px 16px 16px;
+  padding: clamp(12px, 3.2vmin, 22px) clamp(12px, 3vmin, 20px) clamp(12px, 2.5vmin, 18px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: clamp(10px, 2.2vmin, 18px);
 }
 
 .clock-block {
   text-align: center;
+  flex-shrink: 0;
   animation: rise 0.45s ease both;
 }
 
 .clock-time {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.1rem, 8vw, 2.8rem);
+  font-size: clamp(1.85rem, 9vmin, 3.4rem);
   font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1;
@@ -167,15 +168,15 @@ body {
 }
 
 .clock-date {
-  margin: 8px 0 0;
-  font-size: 0.95rem;
+  margin: clamp(6px, 1.2vmin, 10px) 0 0;
+  font-size: clamp(0.82rem, 2.4vmin, 1.1rem);
   font-weight: 500;
   color: var(--ink-soft);
 }
 
 .clock-zone {
   margin: 4px 0 0;
-  font-size: 0.75rem;
+  font-size: clamp(0.68rem, 1.9vmin, 0.85rem);
   color: rgba(74, 90, 106, 0.9);
   letter-spacing: 0.02em;
 }
@@ -185,30 +186,33 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: clamp(6px, 1.5vmin, 12px);
+  container-type: size;
+  container-name: calendar;
   animation: rise 0.55s ease 0.05s both;
 }
 
 .month-nav {
   display: grid;
-  grid-template-columns: 36px 1fr 36px;
+  grid-template-columns: clamp(32px, 8cqi, 44px) 1fr clamp(32px, 8cqi, 44px);
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .month-label {
   margin: 0;
   text-align: center;
   font-family: var(--font-display);
-  font-size: 1.2rem;
+  font-size: clamp(1.05rem, 5.5cqi, 1.55rem);
   font-weight: 600;
 }
 
 .nav-btn {
-  width: 36px;
-  height: 32px;
+  width: 100%;
+  height: clamp(30px, 8cqh, 40px);
   border-radius: 10px;
-  font-size: 1.4rem;
+  font-size: clamp(1.2rem, 6cqi, 1.6rem);
   line-height: 1;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -224,35 +228,42 @@ body {
 .weekday-row,
 .day-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: clamp(2px, 1.1cqi, 8px);
+}
+
+.weekday-row {
+  flex-shrink: 0;
 }
 
 .weekday {
   text-align: center;
-  font-size: 0.7rem;
+  font-size: clamp(0.62rem, 2.8cqi, 0.82rem);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  padding: 2px 0 6px;
+  padding: 2px 0 clamp(4px, 1.2cqh, 8px);
 }
 
 .day-grid {
   flex: 1;
-  align-content: start;
+  min-height: 0;
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+  align-content: stretch;
 }
 
 .day {
   position: relative;
-  aspect-ratio: 1;
-  max-height: 44px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
   border: none;
-  border-radius: 12px;
+  border-radius: clamp(8px, 12cqh, 16px);
   background: transparent;
   color: var(--ink);
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: clamp(0.78rem, 4.8cqh, 1.25rem);
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s ease, transform 0.15s ease;
@@ -282,9 +293,9 @@ body {
   content: '';
   position: absolute;
   left: 50%;
-  bottom: 5px;
-  width: 5px;
-  height: 5px;
+  bottom: clamp(3px, 10%, 12px);
+  width: clamp(4px, 10cqh, 8px);
+  height: clamp(4px, 10cqh, 8px);
   border-radius: 50%;
   transform: translateX(-50%);
   background: var(--accent);
@@ -301,10 +312,11 @@ body {
 
 .today-btn {
   align-self: center;
-  margin-top: auto;
-  padding: 7px 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  padding: clamp(6px, 1.4cqh, 10px) clamp(12px, 3cqi, 18px);
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: clamp(0.72rem, 3cqi, 0.9rem);
   font-weight: 600;
   color: var(--accent);
   background: var(--accent-soft);
@@ -392,16 +404,6 @@ body {
   font-size: 0.75rem;
   color: var(--ink-soft);
   white-space: pre-wrap;
-}
-
-.schedule-item .time-badge {
-  align-self: flex-start;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--accent);
-  background: var(--accent-soft);
-  border-radius: 999px;
-  padding: 3px 8px;
 }
 
 .schedule-empty {
