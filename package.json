@@ -1,6 +1,6 @@
 {
   "name": "calendar-gadget",
-  "version": "2.2.0",
+  "version": "2.5.0",
   "description": "Windows 11 desktop calendar gadget",
   "main": "main.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "appId": "com.calendar.gadget",
     "productName": "Calendar Gadget",
     "directories": {
-      "output": "dist-v22"
+      "output": "dist-v25"
     },
     "files": [
       "main.js",
@@ -27,11 +27,13 @@
       "db.js",
       "index.html",
       "styles.css",
-      "package.json"
+      "package.json",
+      "assets/**/*"
     ],
     "compression": "maximum",
     "electronLanguages": ["en-US"],
     "win": {
+      "icon": "assets/icon.png",
       "target": [
         {
           "target": "nsis",

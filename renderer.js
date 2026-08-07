@@ -5,7 +5,6 @@ const els = {
   shell: document.querySelector('.shell'),
   clockTime: document.getElementById('clock-time'),
   clockDate: document.getElementById('clock-date'),
-  clockZone: document.getElementById('clock-zone'),
   monthLabel: document.getElementById('month-label'),
   weekdayRow: document.getElementById('weekday-row'),
   dayGrid: document.getElementById('day-grid'),
@@ -29,7 +28,6 @@ const els = {
   opacityRange: document.getElementById('opacity-range'),
   opacityValue: document.getElementById('opacity-value'),
   weekStart: document.getElementById('week-start'),
-  alwaysOnTop: document.getElementById('always-on-top'),
   sizeWidth: document.getElementById('size-width'),
   sizeHeight: document.getElementById('size-height'),
   sizeHint: document.getElementById('size-hint'),
@@ -116,7 +114,6 @@ function updateClock() {
     month: 'long',
     day: 'numeric',
   }).format(new Date());
-  els.clockZone.textContent = settings.timeZone.replace(/_/g, ' ');
 }
 
 function renderWeekdays() {
@@ -205,19 +202,65 @@ async function goToday() {
   await renderCalendar();
 }
 
+function zoneOffsetMinutes(timeZone, date = new Date()) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'longOffset',
+    }).formatToParts(date);
+    const name = parts.find((p) => p.type === 'timeZoneName')?.value || 'GMT';
+    const match = name.match(/GMT([+-])(\d+)(?::(\d+))?/i);
+    if (!match) return 0;
+    const sign = match[1] === '-' ? -1 : 1;
+    const hours = Number(match[2]) || 0;
+    const mins = Number(match[3]) || 0;
+    return sign * (hours * 60 + mins);
+  } catch (_) {
+    return 0;
+  }
+}
+
+function formatOffsetLabel(offsetMinutes) {
+  const sign = offsetMinutes >= 0 ? '+' : '-';
+  const abs = Math.abs(offsetMinutes);
+  const hh = String(Math.floor(abs / 60)).padStart(2, '0');
+  const mm = String(abs % 60).padStart(2, '0');
+  return `UTC${sign}${hh}:${mm}`;
+}
+
+function formatZoneClock(timeZone, date = new Date()) {
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      timeZone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(date);
+  } catch (_) {
+    return '--:--';
+  }
+}
+
 function fillTimeZones(filter = '') {
   const q = filter.trim().toLowerCase();
-  const list = allTimeZones.filter((z) => !q || z.toLowerCase().includes(q));
+  const now = new Date();
+  const ordered = allTimeZones
+    .filter((z) => !q || z.toLowerCase().includes(q))
+    .map((z) => ({
+      id: z,
+      offset: zoneOffsetMinutes(z, now),
+      clock: formatZoneClock(z, now),
+    }))
+    // Arrange by current UTC offset / local time (west → east), then name.
+    .sort((a, b) => a.offset - b.offset || a.id.localeCompare(b.id));
+
   const preferred = settings.timeZone;
-  const ordered = list.includes(preferred)
-    ? [preferred, ...list.filter((z) => z !== preferred)]
-    : list;
 
   els.timezone.innerHTML = ordered
-    .map(
-      (z) =>
-        `<option value="${z}"${z === preferred ? ' selected' : ''}>${z.replace(/_/g, ' ')}</option>`
-    )
+    .map((z) => {
+      const label = `${z.clock}  ${formatOffsetLabel(z.offset)}  ${z.id.replace(/_/g, ' ')}`;
+      return `<option value="${z.id}"${z.id === preferred ? ' selected' : ''}>${label}</option>`;
+    })
     .join('');
 }
 
@@ -226,7 +269,6 @@ function syncSettingsForm() {
   els.opacityRange.value = String(pct);
   els.opacityValue.textContent = `${pct}%`;
   els.weekStart.value = String(settings.weekStartsOn);
-  els.alwaysOnTop.checked = !!settings.alwaysOnTop;
   els.sizeWidth.min = String(limits.minWidth);
   els.sizeWidth.max = String(limits.maxWidth);
   els.sizeHeight.min = String(limits.minHeight);
@@ -413,10 +455,6 @@ function bindEvents() {
   els.weekStart.addEventListener('change', async (e) => {
     await persist({ weekStartsOn: Number(e.target.value) });
     await renderCalendar();
-  });
-
-  els.alwaysOnTop.addEventListener('change', async (e) => {
-    await persist({ alwaysOnTop: e.target.checked });
   });
 
   els.applySize.addEventListener('click', async () => {

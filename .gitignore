@@ -1,5 +1,10 @@
 node_modules/
 dist/
 dist-install/
+dist-v21/
+dist-v22/
+dist-v23/
+dist-v24/
+dist-v25/
 *.log
 .DS_Store

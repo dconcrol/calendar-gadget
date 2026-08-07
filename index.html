@@ -43,7 +43,6 @@
         <section class="clock-block">
           <p id="clock-time" class="clock-time">--:--:--</p>
           <p id="clock-date" class="clock-date">—</p>
-          <p id="clock-zone" class="clock-zone">—</p>
         </section>
 
         <section class="calendar-block">
@@ -113,11 +112,6 @@
           </select>
         </label>
 
-        <label class="field switch-field">
-          <span>Always on top</span>
-          <input id="always-on-top" type="checkbox" />
-        </label>
-
         <label class="field">
           <span>Window size</span>
           <div class="size-controls">
@@ -138,7 +132,7 @@
           <span>Display time zone</span>
           <input id="timezone-filter" type="search" placeholder="Search time zones…" autocomplete="off" />
           <select id="timezone" size="8"></select>
-          <p class="hint">Changes only the clock display. Your system time zone stays the same.</p>
+          <p class="hint">Sorted by current local time (UTC offset). Changes only the clock display.</p>
         </label>
       </aside>
     </div>

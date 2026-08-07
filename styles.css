@@ -172,13 +172,6 @@ textarea,
   color: var(--ink-soft);
 }
 
-.clock-zone {
-  margin: 4px 0 0;
-  font-size: clamp(0.68rem, 1.9vmin, 0.85rem);
-  color: rgba(74, 90, 106, 0.9);
-  letter-spacing: 0.02em;
-}
-
 .calendar-block {
   flex: 1;
   min-height: 0;
