@@ -1,6 +1,6 @@
 {
   "name": "calendar-gadget",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "description": "Windows 11 desktop calendar gadget",
   "main": "main.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "appId": "com.calendar.gadget",
     "productName": "Calendar Gadget",
     "directories": {
-      "output": "dist-install"
+      "output": "dist-v22"
     },
     "files": [
       "main.js",

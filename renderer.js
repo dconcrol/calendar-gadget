@@ -42,16 +42,16 @@ let settings = {
   opacity: 0.92,
   weekStartsOn: 0,
   alwaysOnTop: true,
-  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  width: 340,
-  height: 480,
+  timeZone: 'America/New_York',
+  width: 260,
+  height: 360,
 };
 
 let limits = {
-  minWidth: 300,
-  minHeight: 420,
-  maxWidth: 520,
-  maxHeight: 760,
+  minWidth: 260,
+  minHeight: 360,
+  maxWidth: 420,
+  maxHeight: 600,
 };
 
 let allTimeZones = [];

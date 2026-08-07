@@ -5,10 +5,10 @@ const { createDatabase } = require('./db');
 
 app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 
-const MIN_WIDTH = 300;
-const MIN_HEIGHT = 420;
-const MAX_WIDTH = 520;
-const MAX_HEIGHT = 760;
+const MIN_WIDTH = 260;
+const MIN_HEIGHT = 360;
+const MAX_WIDTH = 420;
+const MAX_HEIGHT = 600;
 
 const SETTINGS_PATH = path.join(app.getPath('userData'), 'settings.json');
 const DB_PATH = path.join(app.getPath('userData'), 'schedules.db.json');
@@ -17,9 +17,9 @@ const DEFAULT_SETTINGS = {
   opacity: 0.92,
   weekStartsOn: 0, // 0 = Sunday, 1 = Monday
   alwaysOnTop: true,
-  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  width: 340,
-  height: 480,
+  timeZone: 'America/New_York',
+  width: MIN_WIDTH,
+  height: MIN_HEIGHT,
   x: null,
   y: null,
 };
@@ -171,7 +171,16 @@ function applySettings(partial) {
   return settings;
 }
 
+function ensureAutoLaunch() {
+  if (!app.isPackaged) return;
+  app.setLoginItemSettings({
+    openAtLogin: true,
+    path: process.execPath,
+  });
+}
+
 app.whenReady().then(() => {
+  ensureAutoLaunch();
   createWindow();
 
   app.on('activate', () => {
