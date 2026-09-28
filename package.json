@@ -1,11 +1,11 @@
 {
   "name": "calendar-gadget",
-  "version": "2.5.0",
+  "version": "9.0.9",
   "description": "Windows 11 desktop calendar gadget",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "pack": "electron-builder --win nsis",
+    "pack": "electron-builder --win nsis && node -e \"const fs=require('fs');const p=require('./package.json').build.directories.output;for(const n of fs.readdirSync(p)){if(!/^Calendar Gadget Setup .+\\.exe$/i.test(n))fs.rmSync(require('path').join(p,n),{recursive:true,force:true})}\"",
     "pack:portable": "electron-builder --win portable"
   },
   "author": "",
@@ -18,7 +18,7 @@
     "appId": "com.calendar.gadget",
     "productName": "Calendar Gadget",
     "directories": {
-      "output": "dist-v25"
+      "output": "dist-v909"
     },
     "files": [
       "main.js",
@@ -28,10 +28,16 @@
       "index.html",
       "styles.css",
       "package.json",
-      "assets/**/*"
+      "trayIcon.js",
+      "assets/icon.png",
+      "assets/icon-16.png",
+      "assets/tray-icon.png"
     ],
+    "afterPack": "./afterPack.js",
+    "afterAllArtifactBuild": "./afterAllArtifactBuild.js",
     "compression": "maximum",
     "electronLanguages": ["en-US"],
+    "asar": true,
     "win": {
       "icon": "assets/icon.png",
       "target": [
@@ -47,7 +53,9 @@
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Calendar Gadget"
+      "shortcutName": "Calendar Gadget",
+      "differentialPackage": false,
+      "packElevateHelper": false
     }
   },
   "allowScripts": {

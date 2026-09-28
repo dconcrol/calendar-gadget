@@ -12,6 +12,7 @@
   </head>
   <body>
     <div class="shell">
+      <div id="app-toast" class="app-toast" hidden role="status" aria-live="polite"></div>
       <header class="titlebar">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true"></span>
@@ -27,8 +28,14 @@
             </svg>
           </button>
           <button id="btn-minimize" class="icon-btn" type="button" title="Minimize" aria-label="Minimize">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="icon-minimize" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 12h14" />
+            </svg>
+            <svg class="icon-expand" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+              <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+              <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
             </svg>
           </button>
           <button id="btn-close" class="icon-btn danger" type="button" title="Close" aria-label="Close">
@@ -42,6 +49,7 @@
       <main class="content">
         <section class="clock-block">
           <p id="clock-time" class="clock-time">--:--:--</p>
+          <p id="compact-remaining" class="compact-remaining" hidden aria-live="polite"></p>
           <p id="clock-date" class="clock-date">—</p>
         </section>
 
@@ -53,9 +61,128 @@
           </div>
           <div id="weekday-row" class="weekday-row"></div>
           <div id="day-grid" class="day-grid"></div>
-          <button id="btn-today" class="today-btn" type="button">Today</button>
+          <div class="calendar-actions">
+            <button id="btn-today" class="today-btn" type="button">Today</button>
+            <button id="btn-target" class="today-btn target-btn" type="button" title="Timer" aria-label="Timer">
+              <svg class="target-btn-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 4h12" />
+                <path d="M6 20h12" />
+                <path d="M8 4v2a4 4 0 0 0 2.4 3.7L12 11l1.6-1.3A4 4 0 0 0 16 6V4" />
+                <path d="M8 20v-2a4 4 0 0 1 2.4-3.7L12 13l1.6 1.3A4 4 0 0 1 16 18v2" />
+              </svg>
+              <span>Timer</span>
+            </button>
+          </div>
         </section>
       </main>
+
+      <aside id="target-panel" class="overlay-panel target-panel" hidden>
+        <div class="target-panel-aura" aria-hidden="true"></div>
+        <div class="overlay-header target-panel-header">
+          <div>
+            <p class="overlay-kicker target-kicker">Target Time</p>
+            <h2 class="target-title">Set alarm</h2>
+          </div>
+          <button id="btn-target-close" class="icon-btn" type="button" aria-label="Close target panel">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="target-hero" aria-hidden="true">
+          <div class="target-orb">
+            <span class="target-orb-pulse"></span>
+            <span class="target-orb-ring"></span>
+            <span class="target-orb-ring target-orb-ring-delay"></span>
+            <div class="target-orb-core">
+              <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 4h12" />
+                <path d="M6 20h12" />
+                <path d="M8 4v2a4 4 0 0 0 2.4 3.7L12 11l1.6-1.3A4 4 0 0 0 16 6V4" />
+                <path d="M8 20v-2a4 4 0 0 1 2.4-3.7L12 13l1.6 1.3A4 4 0 0 1 16 18v2" />
+              </svg>
+            </div>
+          </div>
+          <p class="target-hero-caption">Choose when the countdown ends</p>
+        </div>
+
+        <form id="target-form" class="target-form">
+          <div class="field target-field">
+            <span>Date &amp; time</span>
+            <div id="target-wheels" class="wheel-picker" role="group" aria-label="Alarm date and time">
+              <div class="wheel-picker-frame" aria-hidden="true"></div>
+              <div class="wheel-col" data-wheel="year"></div>
+              <div class="wheel-col" data-wheel="month"></div>
+              <div class="wheel-col" data-wheel="day"></div>
+              <div class="wheel-col" data-wheel="hour"></div>
+              <div class="wheel-col" data-wheel="minute"></div>
+            </div>
+            <input id="target-datetime" type="hidden" />
+          </div>
+          <p id="target-timezone-hint" class="hint"></p>
+          <p id="target-error" class="form-error" hidden></p>
+          <button class="primary-btn target-save-btn" type="submit">
+            <span>Save target</span>
+          </button>
+        </form>
+      </aside>
+
+      <aside id="remaining-panel" class="overlay-panel remaining-panel" hidden>
+        <button id="btn-remaining-close" class="icon-btn remaining-close" type="button" aria-label="Close remaining panel">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+
+        <div class="countdown-stage">
+          <div class="countdown-circle" aria-live="polite">
+            <svg class="countdown-ring" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="ring-track" cx="60" cy="60" r="52" />
+              <circle id="remaining-ring" class="ring-progress" cx="60" cy="60" r="52" />
+            </svg>
+            <div class="countdown-center">
+              <p id="remaining-value" class="remaining-value">00:00:00</p>
+              <div class="target-pill">
+                <svg class="target-pill-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <circle cx="12" cy="12" r="8" />
+                  <path d="M12 8v4l2.5 1.5" />
+                </svg>
+                <span id="remaining-target">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-clear-target" class="ghost-clear-btn" type="button">Clear target</button>
+      </aside>
+
+      <aside id="hour-milestone-overlay" class="hour-milestone-overlay" hidden>
+        <div class="hour-milestone-card" role="status" aria-live="assertive">
+          <p class="hour-milestone-kicker">Milestone</p>
+          <h2 id="hour-milestone-message">1 Hour Remains!</h2>
+          <p class="hour-milestone-hint">Tap anywhere to dismiss</p>
+        </div>
+      </aside>
+
+      <aside id="thirty-milestone-overlay" class="thirty-milestone-overlay" hidden>
+        <canvas id="fireworks-canvas" class="fireworks-canvas" aria-hidden="true"></canvas>
+        <div class="sparkle-layer" aria-hidden="true"></div>
+        <div class="thirty-milestone-card" role="status" aria-live="assertive">
+          <p class="thirty-milestone-kicker">Final stretch</p>
+          <h2 id="thirty-milestone-message" class="thirty-milestone-title">30 minutes remains!!!</h2>
+          <p class="thirty-milestone-hint">Tap anywhere to dismiss</p>
+        </div>
+      </aside>
+
+      <aside id="alarm-panel" class="overlay-panel alarm-panel" hidden>
+        <div class="alarm-body">
+          <p class="overlay-kicker">Alarm</p>
+          <h2>Target Time Reached</h2>
+          <p id="alarm-target-label" class="remaining-target">—</p>
+          <button id="btn-alarm-dismiss" class="primary-btn" type="button">Dismiss</button>
+        </div>
+      </aside>
 
       <aside id="schedule-panel" class="overlay-panel" hidden>
         <div class="overlay-header">
@@ -112,6 +239,33 @@
           </select>
         </label>
 
+        <fieldset class="field compact-method-field">
+          <legend>Compact method</legend>
+          <label class="radio-row">
+            <input id="compact-method-origin" type="radio" name="compact-method" value="origin" />
+            <span><strong>method1</strong></span>
+          </label>
+          <label class="radio-row">
+            <input id="compact-method-hover" type="radio" name="compact-method" value="hover" />
+            <span><strong>method2</strong></span>
+          </label>
+          <p class="hint">Double-click compact to open the full calendar. Double-click the calendar to enter compact.</p>
+        </fieldset>
+
+        <div class="field hotkey-field">
+          <span>Show / hide hotkey</span>
+          <div class="hotkey-row">
+            <button id="hotkey-capture" class="hotkey-capture-btn" type="button" aria-label="Set show or hide hotkey">
+              Ctrl + Alt + C
+            </button>
+            <button id="hotkey-clear" class="ghost-btn hotkey-clear-btn" type="button" title="Clear hotkey">
+              Clear
+            </button>
+          </div>
+          <p id="hotkey-hint" class="hint">Click the box, then press a shortcut. Opens or hides the gadget anywhere.</p>
+          <p id="hotkey-error" class="form-error" hidden></p>
+        </div>
+
         <label class="field">
           <span>Window size</span>
           <div class="size-controls">
@@ -128,12 +282,79 @@
           <p id="size-hint" class="hint">Size is limited. You can also drag the window edges.</p>
         </label>
 
-        <label class="field">
+        <div class="field timezone-field">
           <span>Display time zone</span>
           <input id="timezone-filter" type="search" placeholder="Search time zones…" autocomplete="off" />
-          <select id="timezone" size="8"></select>
-          <p class="hint">Sorted by current local time (UTC offset). Changes only the clock display.</p>
-        </label>
+          <select id="timezone" class="timezone-list" size="8" hidden></select>
+          <p class="hint">Sorted by current local time (UTC offset). Used for the clock and alarm target times.</p>
+        </div>
+      </aside>
+
+      <aside id="help-panel" class="overlay-panel help-panel" hidden>
+        <div class="overlay-header help-header">
+          <h2>Help</h2>
+          <button id="btn-help-close" class="icon-btn" type="button" aria-label="Close help">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+        <div class="help-page" role="document">
+          <section class="help-section">
+            <h3 class="help-section-title">— Window —</h3>
+            <ul class="help-menu-list">
+              <li>Show / hide — tray click or <span id="help-hotkey">Ctrl+Alt+C</span></li>
+              <li>Right-click calendar — show toolbar</li>
+              <li>Drag clock area — move window</li>
+              <li>Toolbar × — hide gadget</li>
+              <li>Ctrl+Shift+P — pin / unpin always on top</li>
+            </ul>
+          </section>
+          <section class="help-section">
+            <h3 class="help-section-title">— Compact clock —</h3>
+            <ul class="help-menu-list">
+              <li>Settings → Compact method: method1 or method2</li>
+              <li>method1 — small time chip at right edge</li>
+              <li>method2 — larger compact clock</li>
+              <li>Double-click compact — open full calendar</li>
+              <li>Double-click calendar — enter compact</li>
+              <li>Minimize button — toggle compact / expand</li>
+              <li>Pinned + compact — clicks pass through until you hover</li>
+            </ul>
+          </section>
+          <section class="help-section">
+            <h3 class="help-section-title">— Calendar —</h3>
+            <ul class="help-menu-list">
+              <li>‹ › or mouse wheel — change month</li>
+              <li>Today — jump to current day</li>
+              <li>Click a day — meetings for that date</li>
+            </ul>
+          </section>
+          <section class="help-section">
+            <h3 class="help-section-title">— Timer / alarm —</h3>
+            <ul class="help-menu-list">
+              <li>Timer — set target time (scroll wheels)</li>
+              <li>Countdown &amp; alerts while a target is set</li>
+              <li>Hour marks &amp; 30-min alert before target</li>
+              <li>Alarm at target — dismiss from panel</li>
+            </ul>
+          </section>
+          <section class="help-section">
+            <h3 class="help-section-title">— Settings —</h3>
+            <ul class="help-menu-list">
+              <li>Opacity, week start, time zone</li>
+              <li>Show / hide hotkey (customizable)</li>
+              <li>Window size limits</li>
+            </ul>
+          </section>
+          <section class="help-section">
+            <h3 class="help-section-title">— Tray —</h3>
+            <ul class="help-menu-list">
+              <li>Icon shows today’s date number</li>
+              <li>Click tray icon — show full calendar</li>
+            </ul>
+          </section>
+        </div>
       </aside>
     </div>
 
